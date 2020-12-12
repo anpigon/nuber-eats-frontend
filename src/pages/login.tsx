@@ -2,11 +2,14 @@ import { gql, useMutation } from "@apollo/client";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { FormError } from "../components/form-error";
-import { loginMutation, loginMutationVariables } from "../__generated__/loginMutation";
+import {
+  loginMutation,
+  loginMutationVariables,
+} from "../__generated__/loginMutation";
 
 const LOGIN_MUTATION = gql`
-  mutation loginMutation($email: String!, $password: String!) {
-    login(input: { email: $email, password: $password }) {
+  mutation loginMutation($loginInput: LoginInput!) {
+    login(input: $loginInput) {
       ok
       error
       token
@@ -21,17 +24,31 @@ interface ILoginForm {
 
 function Login() {
   const { register, getValues, errors, handleSubmit } = useForm<ILoginForm>();
-  const [loginMutation, { loading, error, data }] = useMutation<loginMutation, Partial<loginMutationVariables>>(LOGIN_MUTATION);
+  const onCompleted = (data: loginMutation) => {
+    const {
+      login: { ok, token },
+    } = data;
+    if (ok) {
+      console.log(token);
+    }
+  };
+
+  const [loginMutation, { data: loginMutationResult }] = useMutation<
+    loginMutation,
+    loginMutationVariables
+  >(LOGIN_MUTATION, { onCompleted });
+
   const onSubmit = () => {
     const { email, password } = getValues();
     loginMutation({
       variables: {
-        email,
-        password,
+        loginInput: {
+          email: email!,
+          password: password!,
+        },
       },
     });
   };
-  console.log({ loading, error, data })
 
   return (
     <div className="h-screen flex items-center justify-center bg-gray-800">
@@ -67,6 +84,9 @@ function Login() {
             <FormError errorMessage="Password must be more than 10 chars." />
           )}
           <button className="mt-3 btn">Log In</button>
+          {loginMutationResult?.login.error && (
+            <FormError errorMessage={loginMutationResult.login.error} />
+          )}
         </form>
       </div>
     </div>
