@@ -1,6 +1,8 @@
 import { gql, useMutation } from "@apollo/client";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
+import { Button } from "../components/button";
 import { FormError } from "../components/form-error";
 import nuberLogo from "../images/logo.svg";
 import {
@@ -24,7 +26,17 @@ interface ILoginForm {
 }
 
 function Login() {
-  const { register, getValues, errors, handleSubmit } = useForm<ILoginForm>();
+  const {
+    register,
+    getValues,
+    errors,
+    handleSubmit,
+    formState,
+  } = useForm<ILoginForm>({
+    // ref: https://react-hook-form.com/api#formState
+    mode: "onChange", // 어느 시점부터 입력값 유효성 검사를 시작할지 설정한다. (default: onSubmit)
+  });
+
   const onCompleted = (data: loginMutation) => {
     const {
       login: { ok, token },
@@ -62,7 +74,7 @@ function Login() {
         </h4>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="grid gap-3 mt-5 w-full"
+          className="grid gap-3 mt-5 w-full mb-5"
         >
           <input
             ref={register({ required: "Email is required" })}
@@ -89,11 +101,21 @@ function Login() {
           {errors.password?.type === "minLength" && (
             <FormError errorMessage="Password must be more than 10 chars." />
           )}
-          <button className="btn">{loading ? "Loading..." : "Log In"}</button>
+          <Button
+            canClick={formState.isValid}
+            loading={loading}
+            actionText="Log in"
+          />
           {loginMutationResult?.login.error && (
             <FormError errorMessage={loginMutationResult.login.error} />
           )}
         </form>
+        <div>
+          New to Nuber?{" "}
+          <Link to="/create-account" className="text-lime-600 hover:underline">
+            Create an Account
+          </Link>
+        </div>
       </div>
     </div>
   );
