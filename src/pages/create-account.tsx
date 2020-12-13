@@ -31,7 +31,6 @@ export const CreateAccount = () => {
   const {
     register,
     getValues,
-    watch,
     errors,
     handleSubmit,
     formState,
@@ -48,7 +47,8 @@ export const CreateAccount = () => {
       createAccount: { ok },
     } = data;
     if (ok) {
-      history.push("/login");
+      alert("Account Created! Log in now!");
+      history.push("/");
     }
   };
 
@@ -72,8 +72,7 @@ export const CreateAccount = () => {
       });
     }
   };
-  console.log(watch());
-  console.log(errors.password);
+
   return (
     <div className="h-screen flex items-center flex-col mt-10 lg:mt-28">
       <Helmet>
@@ -146,7 +145,7 @@ export const CreateAccount = () => {
         </form>
         <div>
           Already have an account?{" "}
-          <Link to="/login" className="text-lime-600 hover:underline">
+          <Link to="/" className="text-lime-600 hover:underline">
             Log in now
           </Link>
         </div>
@@ -154,5 +153,3 @@ export const CreateAccount = () => {
     </div>
   );
 };
-
-export default CreateAccount;
