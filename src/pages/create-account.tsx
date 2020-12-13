@@ -2,7 +2,7 @@ import { gql, useMutation } from "@apollo/client";
 import React from "react";
 import Helmet from "react-helmet";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { Button } from "../components/button";
 import { FormError } from "../components/form-error";
 import nuberLogo from "../images/logo.svg";
@@ -42,14 +42,29 @@ export const CreateAccount = () => {
     },
   });
 
-  const [createAccountMutation] = useMutation<
+  const history = useHistory();
+  const onCompleted = (data: createAccountMutation) => {
+    const {
+      createAccount: { ok },
+    } = data;
+    if (ok) {
+      history.push("/login");
+    }
+  };
+
+  const [
     createAccountMutation,
-    createAccountMutationVariables
-  >(CREATE_ACCOUNT_MUTATION);
+    { loading, data: createAccountMutationResult },
+  ] = useMutation<createAccountMutation, createAccountMutationVariables>(
+    CREATE_ACCOUNT_MUTATION,
+    {
+      onCompleted,
+    }
+  );
 
   const onSubmit = () => {};
   console.log(watch());
-
+  console.log(errors.password);
   return (
     <div className="h-screen flex items-center flex-col mt-10 lg:mt-28">
       <Helmet>
@@ -65,7 +80,10 @@ export const CreateAccount = () => {
           className="grid gap-3 mt-5 w-full mb-5"
         >
           <input
-            ref={register({ required: "Email is required" })}
+            ref={register({
+              required: "Email is required",
+              pattern: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+            })}
             name="email"
             required
             type="email"
@@ -73,10 +91,19 @@ export const CreateAccount = () => {
             className="input"
           />
           {errors.email?.message && (
-            <FormError errorMessage={errors.email?.message} />
+            <FormError errorMessage={errors.email.message} />
+          )}
+          {errors.email?.type === "pattern" && (
+            <FormError errorMessage={"Please enter a valid email"} />
           )}
           <input
-            ref={register({ required: "Password is required" })}
+            ref={register({
+              required: "Password is required",
+              minLength: {
+                value: 6,
+                message: "Password must be more than 6 chars.",
+              },
+            })}
             required
             name="password"
             type="password"
@@ -85,9 +112,6 @@ export const CreateAccount = () => {
           />
           {errors.password?.message && (
             <FormError errorMessage={errors.password?.message} />
-          )}
-          {errors.password?.type === "minLength" && (
-            <FormError errorMessage="Password must be more than 10 chars." />
           )}
           <select
             name="role"
@@ -102,9 +126,14 @@ export const CreateAccount = () => {
           </select>
           <Button
             canClick={formState.isValid}
-            loading={false}
+            loading={loading}
             actionText={"Create Account"}
           />
+          {createAccountMutationResult?.createAccount.error && (
+            <FormError
+              errorMessage={createAccountMutationResult.createAccount.error}
+            />
+          )}
         </form>
         <div>
           Already have an account?{" "}

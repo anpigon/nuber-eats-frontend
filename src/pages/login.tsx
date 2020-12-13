@@ -2,6 +2,7 @@ import { gql, useMutation } from "@apollo/client";
 import React from "react";
 import { Helmet } from "react-helmet";
 import { useForm } from "react-hook-form";
+import { isLoggedInVar } from "../apollo";
 import { Link } from "react-router-dom";
 import { Button } from "../components/button";
 import { FormError } from "../components/form-error";
@@ -44,6 +45,7 @@ function Login() {
     } = data;
     if (ok) {
       console.log(token);
+      isLoggedInVar(true);
     }
   };
 
@@ -81,7 +83,10 @@ function Login() {
           className="grid gap-3 mt-5 w-full mb-5"
         >
           <input
-            ref={register({ required: "Email is required" })}
+            ref={register({
+              required: "Email is required",
+              pattern: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+            })}
             name="email"
             type="email"
             placeholder="Email"
@@ -90,8 +95,17 @@ function Login() {
           {errors.email?.message && (
             <FormError errorMessage={errors.email.message} />
           )}
+          {errors.email?.type === "pattern" && (
+            <FormError errorMessage={"Please enter a valid email"} />
+          )}
           <input
-            ref={register({ required: "Password is required", minLength: 10 })}
+            ref={register({
+              required: "Password is required",
+              minLength: {
+                value: 6,
+                message: "Password must be more than 6 chars.",
+              },
+            })}
             name="password"
             type="password"
             placeholder="Password"
@@ -101,9 +115,6 @@ function Login() {
             <span className="font-medium text-red-500">
               <FormError errorMessage={errors.password.message} />
             </span>
-          )}
-          {errors.password?.type === "minLength" && (
-            <FormError errorMessage="Password must be more than 10 chars." />
           )}
           <Button
             canClick={formState.isValid}
