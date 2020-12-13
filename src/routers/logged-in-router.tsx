@@ -9,6 +9,8 @@ import {
 import { useMe } from "../hooks/useMe";
 import { Header } from "../components/header";
 import { Restaurants } from "../pages/client/restaurants";
+import { EditProfile } from "../pages/user/edit-profile";
+
 import { UserRole } from "../__generated__/globalTypes";
 import { ConfirmEmail } from "../pages/user/confirm-email";
 
@@ -18,6 +20,9 @@ const ClientRoutes = [
   </Route>,
   <Route key="ConfirmEmail" path="/confirm" exact>
     <ConfirmEmail />
+  </Route>,
+  <Route key="EditProfile" path="/edit-profile" exact>
+    <EditProfile />
   </Route>,
 ];
 

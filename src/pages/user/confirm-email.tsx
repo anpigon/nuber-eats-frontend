@@ -1,5 +1,7 @@
 import { gql, useApolloClient, useMutation } from "@apollo/client";
 import React, { useEffect } from "react";
+import { useHistory } from "react-router-dom";
+
 import { useMe } from "../../hooks/useMe";
 import {
   verifyEmail,
@@ -18,12 +20,13 @@ const VERIFY_EMAIL_MUTATION = gql`
 export const ConfirmEmail = () => {
   const { data: userData } = useMe();
   const client = useApolloClient();
+  const history = useHistory();
 
   const onCompleted = (data: verifyEmail) => {
     const {
       verifyEmail: { ok },
     } = data;
-    console.log(data)
+    // console.log(data)
     if (ok && userData?.me.id) {
       client.writeFragment({
         id: `User:${userData.me.id}`,
@@ -36,6 +39,7 @@ export const ConfirmEmail = () => {
           verified: true,
         },
       });
+      history.push("/");
     }
   };
 
@@ -56,7 +60,7 @@ export const ConfirmEmail = () => {
         },
       },
     });
-  }, []);
+  }, [verifyEmail]);
 
   return (
     <div className="mt-52 flex flex-col items-center justify-center">
