@@ -20,10 +20,10 @@ const ClientRoutes = [
   <Route key="Restaurants" path="/" exact>
     <Restaurants />
   </Route>,
-  <Route key="ConfirmEmail" path="/confirm" exact>
+  <Route key="ConfirmEmail" path="/confirm">
     <ConfirmEmail />
   </Route>,
-  <Route key="EditProfile" path="/edit-profile" exact>
+  <Route key="EditProfile" path="/edit-profile">
     <EditProfile />
   </Route>,
   <Route key="search" path="/search">
