@@ -13,6 +13,8 @@ import { EditProfile } from "../pages/user/edit-profile";
 
 import { UserRole } from "../__generated__/globalTypes";
 import { ConfirmEmail } from "../pages/user/confirm-email";
+import { NotFound } from "../pages/404";
+import { Search } from "../pages/client/search";
 
 const ClientRoutes = [
   <Route key="Restaurants" path="/" exact>
@@ -23,6 +25,9 @@ const ClientRoutes = [
   </Route>,
   <Route key="EditProfile" path="/edit-profile" exact>
     <EditProfile />
+  </Route>,
+  <Route key="search" path="/search">
+    <Search />
   </Route>,
 ];
 
@@ -41,7 +46,9 @@ export const LoggedInRouter = () => {
       <Header />
       <Switch>
         {data.me.role === UserRole.Client && ClientRoutes}
-        <Redirect to="/" />
+        <Route>
+          <NotFound />
+        </Route>
       </Switch>
     </Router>
   );
