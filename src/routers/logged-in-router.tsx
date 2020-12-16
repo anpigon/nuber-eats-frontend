@@ -11,6 +11,7 @@ import { ConfirmEmail } from "../pages/user/confirm-email";
 import { NotFound } from "../pages/404";
 import { Search } from "../pages/client/search";
 import { Category } from "../pages/client/category";
+import { Restaurant } from "../pages/client/restaurant";
 
 const ClientRoutes = [
   <Route key="Restaurants" path="/" exact>
@@ -27,6 +28,9 @@ const ClientRoutes = [
   </Route>,
   <Route key={5} path="/category/:slug">
     <Category />
+  </Route>,
+  <Route key={6} path="/restaurants/:id">
+    <Restaurant />
   </Route>,
 ];
 
