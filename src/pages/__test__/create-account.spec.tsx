@@ -6,6 +6,19 @@ import { render, waitFor, RenderResult } from "../../test-utils";
 import userEvent from "@testing-library/user-event";
 import { UserRole } from "../../__generated__/globalTypes";
 
+const mockPush = jest.fn();
+jest.mock("react-router-dom", () => {
+  const realModule = jest.requireActual("react-router-dom");
+  return {
+    ...realModule,
+    useHistory: () => {
+      return {
+        push: mockPush,
+      };
+    },
+  };
+});
+
 describe("<CreateAccount />", () => {
   let mockedClient: MockApolloClient;
   let renderResult: RenderResult;
@@ -28,7 +41,6 @@ describe("<CreateAccount />", () => {
   it("renders validation errors", async () => {
     const { getByRole, getByPlaceholderText } = renderResult;
     const email = getByPlaceholderText(/email/i);
-    const password = getByPlaceholderText(/password/i);
     const submitBtn = getByRole(/button/i);
 
     await waitFor(() => {
@@ -87,6 +99,10 @@ describe("<CreateAccount />", () => {
     });
     expect(window.alert).toHaveBeenCalledWith("Account Created! Log in now!");
     const mutationError = getByRole("alert");
+    expect(mockPush).toHaveBeenCalledWith("/");
     expect(mutationError).toHaveTextContent("mutation-error");
+  });
+  afterAll(() => {
+    jest.clearAllMocks();
   });
 });
