@@ -37,9 +37,6 @@ describe("Create Account", () => {
 
     user.wait(1000);
     user.title().should("eq", "Login | Nuber Eats");
-    user.get("[name=email]").type("test@gmail.com");
-    user.get("[name=password]").type("111111");
-    user.get("button").click();
-    user.window().its("localStorage.nuber-token").should("be.a", "string");
+    user.login("test@gmail.com", "111111");
   });
 });
