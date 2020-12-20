@@ -1,6 +1,5 @@
 describe("Log In", () => {
   const user = cy;
-
   it("should see login page", () => {
     user.visit("/").title().should("eq", "Login | Nuber Eats");
   });
@@ -18,16 +17,15 @@ describe("Log In", () => {
       .clear();
     user.findByRole("alert").should("have.text", "Password is required");
   });
-
-  it("can fill out the form", () => {
+  
+  it("can fill out the form and log in", () => {
     user.visit("/");
-    user.get("[name=email").type("anpigon@gmail.com");
-    user.get("[name=password").type("111111");
-    user.get("button").should("not.have.class", "pointer-events-none").click();
+    user.findByPlaceholderText(/email/i).type("anpigon@gmail.co");
+    user.findByPlaceholderText(/password/i).type("123456");
+    user
+      .findByRole("button")
+      .should("not.have.class", "pointer-events-none")
+      .click();
     user.window().its("localStorage.nuber-token").should("be.a", "string");
-  });
-
-  it("sign up", () => {
-    user.visit("/create-account");
   });
 });
