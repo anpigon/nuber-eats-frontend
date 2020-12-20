@@ -12,6 +12,12 @@ describe("Edit Profile", () => {
   });
 
   it("can change email", () => {
+    user.intercept("POST", "http://localhost:4000/graphql", (req) => {
+      if (req.body?.operationName === "editProfile") {
+        // @ts-ignore
+        req.body?.variables?.input?.email = "test@gmail.com";
+      }
+    });
     user.visit("/edit-profile");
     user.get("[type=email]").clear().type("new@gmail.com");
     user.get("button").click();
