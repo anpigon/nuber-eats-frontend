@@ -1,13 +1,12 @@
 import { ApolloProvider } from "@apollo/client";
 import { createMockClient, MockApolloClient } from "mock-apollo-client";
-import { render, RenderResult, waitFor } from "@testing-library/react";
 import React from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter as Router } from "react-router-dom";
 
 import Login, { LOGIN_MUTATION } from "../login";
 import userEvent from "@testing-library/user-event";
-import { debug } from "console";
+import { render, waitFor, RenderResult } from "../../test-utils";
 
 describe("<Login />", () => {
   let renderResult: RenderResult;
@@ -16,13 +15,9 @@ describe("<Login />", () => {
     mockedClient = createMockClient();
     await waitFor(() => {
       renderResult = render(
-        <HelmetProvider>
-          <Router>
-            <ApolloProvider client={mockedClient}>
-              <Login />
-            </ApolloProvider>
-          </Router>
-        </HelmetProvider>
+        <ApolloProvider client={mockedClient}>
+          <Login />
+        </ApolloProvider>
       );
     });
   });
@@ -34,7 +29,7 @@ describe("<Login />", () => {
   });
 
   it("displays email validation errors", async () => {
-    const { getByPlaceholderText, getByRole, debug } = renderResult;
+    const { getByPlaceholderText, getByRole } = renderResult;
     const email = getByPlaceholderText(/email/i);
     await waitFor(() => {
       userEvent.type(email, "this@wont");
@@ -69,7 +64,7 @@ describe("<Login />", () => {
   });
 
   it("submits form and calls mutation", async () => {
-    const { getByPlaceholderText, getByRole, debug } = renderResult;
+    const { getByPlaceholderText, getByRole } = renderResult;
     const email = getByPlaceholderText(/email/i);
     const password = getByPlaceholderText(/password/i);
     const submitBtn = getByRole(/button/i);
