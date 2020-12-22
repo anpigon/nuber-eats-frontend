@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { ApolloClient, gql, useApolloClient, useQuery } from "@apollo/client";
+import React from "react";
+import { gql, useQuery } from "@apollo/client";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { RESTAURANT_FRAGMENT } from "../../fragments";
@@ -21,22 +21,6 @@ export const MY_RESTAURANTS_QUERY = gql`
 
 export const MyRestaurants = () => {
   const { data } = useQuery<myRestaurants>(MY_RESTAURANTS_QUERY);
-
-  const client = useApolloClient();
-  useEffect(() => {
-    const queryResult = client.readQuery({ query: MY_RESTAURANTS_QUERY }); // read from cache
-    client.watchQuery({
-      query: MY_RESTAURANTS_QUERY,
-      data: {
-        ...queryResult,
-        restaurants: [
-          ...queryResult.restaurants,
-          
-        ]
-      },
-    });
-    console.log("queryResult", queryResult);
-  }, []);
 
   return (
     <div>
