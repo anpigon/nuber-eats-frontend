@@ -8,12 +8,14 @@ import {
   createRestaurant,
   createRestaurantVariables,
 } from "../../__generated__/createRestaurant";
+// import { MY_RESTAURANTS_QUERY } from "./my-restaurants";
 
 const CREATE_RESTAURANT_MUTATION = gql`
   mutation createRestaurant($input: CreateRestaurantInput!) {
     createRestaurant(input: $input) {
       error
       ok
+      restaurantId
     }
   }
 `;
@@ -30,7 +32,7 @@ export const AddRestaurant = () => {
 
   const onCompleted = (data: createRestaurant) => {
     const {
-      createRestaurant: { ok },
+      createRestaurant: { ok, restaurantId },
     } = data;
     if (ok) {
       setUploading(false);
@@ -40,7 +42,14 @@ export const AddRestaurant = () => {
   const [createRestaurantMutation, { data }] = useMutation<
     createRestaurant,
     createRestaurantVariables
-  >(CREATE_RESTAURANT_MUTATION, { onCompleted });
+  >(CREATE_RESTAURANT_MUTATION, {
+    onCompleted,
+    // refetchQueries: [
+    //   {
+    //     query: MY_RESTAURANTS_QUERY,
+    //   },
+    // ],
+  });
 
   const {
     register,
