@@ -1,4 +1,4 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import React from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useParams, useRouteMatch } from "react-router-dom";
@@ -20,6 +20,7 @@ import {
   RESTAURANT_FRAGMENT,
 } from "../../fragments";
 import { useMe } from "../../hooks/useMe";
+import { createPayment, createPaymentVariables } from "../../__generated__/createPayment";
 import {
   myRestaurant,
   myRestaurantVariables,
@@ -46,6 +47,15 @@ export const MY_RESTAURANT_QUERY = gql`
   ${ORDERS_FRAGMENT}
 `;
 
+const CREATE_PAYMENT_MUTATION = gql`
+  mutation createPayment($input: CreatePaymentInput!) {
+    createPayment(input: $input) {
+      ok
+      error
+    }
+  }
+`;
+
 interface IParams {
   id: string;
 }
@@ -63,16 +73,39 @@ export const MyRestaurant = () => {
       },
     }
   );
+
+  const onCompleted = (data: createPayment) => {
+    if (data.createPayment.ok) {
+      alert("Your restaurant is being promoted!");
+    }
+  };
+
+  const [createPaymentMutation, { loading }] = useMutation<
+    createPayment,
+    createPaymentVariables
+  >(CREATE_PAYMENT_MUTATION, {
+    onCompleted,
+  });
   
   const { data: userData } = useMe();
   const triggerPaddle = () => {
     if (userData?.me.email) {
       // @ts-ignore
-      window.Paddle.Setup({ vendor: 31465 });
+      window.Paddle.Setup({ vendor: 666 });
       // @ts-ignore
       window.Paddle.Checkout.open({
-        product: 638793,
+        product: 666,
         email: userData.me.email,
+        successCallback: (data: any) => {
+          createPaymentMutation({
+            variables: {
+              input: {
+                transactionId: data.checkout.id,
+                restaurantId: +id,
+              },
+            },
+          });
+        },
       });
     }
   };
