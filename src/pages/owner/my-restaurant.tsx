@@ -1,5 +1,6 @@
 import { gql, useQuery } from "@apollo/client";
 import React from "react";
+import { Helmet } from "react-helmet-async";
 import { Link, useParams, useRouteMatch } from "react-router-dom";
 import { DISH_FRAGMENT, RESTAURANT_FRAGMENT } from "../../fragments";
 import {
@@ -7,7 +8,7 @@ import {
   myRestaurantVariables,
 } from "../../__generated__/myRestaurant";
 
-const MY_RESTAURANT_QUERY = gql`
+export const MY_RESTAURANT_QUERY = gql`
   query myRestaurant($input: MyRestaurantInput!) {
     myRestaurant(input: $input) {
       ok
@@ -44,6 +45,11 @@ export const MyRestaurant = () => {
   console.log(data);
   return (
     <div>
+      <Helmet>
+        <title>
+          {data?.myRestaurant.restaurant?.name || "Loading..."} | Nuber Eats
+        </title>
+      </Helmet>
       <div
         className="  bg-gray-700  py-28 bg-center bg-cover"
         style={{

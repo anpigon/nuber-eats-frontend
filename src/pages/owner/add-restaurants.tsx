@@ -43,7 +43,7 @@ export const AddRestaurant = () => {
       setUploading(false);
       const { name, categoryName, address } = getValues();
       const queryResult = client.readQuery({ query: MY_RESTAURANTS_QUERY });
-      console.log('queryResult', queryResult)
+      console.log("queryResult", queryResult);
       client.writeQuery({
         query: MY_RESTAURANTS_QUERY,
         data: {
