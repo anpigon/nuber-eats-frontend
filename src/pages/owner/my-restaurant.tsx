@@ -19,6 +19,7 @@ import {
   ORDERS_FRAGMENT,
   RESTAURANT_FRAGMENT,
 } from "../../fragments";
+import { useMe } from "../../hooks/useMe";
 import {
   myRestaurant,
   myRestaurantVariables,
@@ -62,21 +63,19 @@ export const MyRestaurant = () => {
       },
     }
   );
-  console.log(data);
-
-  const chartData = [
-    { x: 1, y: 3000 },
-    { x: 2, y: 1500 },
-    { x: 3, y: 4250 },
-    { x: 4, y: 1250 },
-    { x: 5, y: 2300 },
-    { x: 6, y: 7150 },
-    { x: 7, y: 6830 },
-    { x: 8, y: 6830 },
-    { x: 9, y: 6830 },
-    { x: 10, y: 6830 },
-    { x: 11, y: 6830 },
-  ];
+  
+  const { data: userData } = useMe();
+  const triggerPaddle = () => {
+    if (userData?.me.email) {
+      // @ts-ignore
+      window.Paddle.Setup({ vendor: 31465 });
+      // @ts-ignore
+      window.Paddle.Checkout.open({
+        product: 638793,
+        email: userData.me.email,
+      });
+    }
+  };
 
   return (
     <div>
@@ -84,7 +83,9 @@ export const MyRestaurant = () => {
         <title>
           {data?.myRestaurant.restaurant?.name || "Loading..."} | Nuber Eats
         </title>
+        <script src="https://cdn.paddle.com/paddle/paddle.js"></script>
       </Helmet>
+      <div className="checkout-container"></div>
       <div
         className="  bg-gray-700  py-28 bg-center bg-cover"
         style={{
@@ -101,9 +102,12 @@ export const MyRestaurant = () => {
         >
           Add Dish &rarr;
         </Link>
-        <Link to={``} className=" text-white bg-lime-700 py-3 px-10">
+        <span
+          onClick={triggerPaddle}
+          className=" cursor-pointer text-white bg-lime-700 py-3 px-10"
+        >
           Buy Promotion &rarr;
-        </Link>
+        </span>
         <div className="mt-10">
           {data?.myRestaurant.restaurant?.menu.length === 0 ? (
             <h4 className="text-xl mb-5">Please upload a dish!</h4>
