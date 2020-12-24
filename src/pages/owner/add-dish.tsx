@@ -27,6 +27,7 @@ interface IForm {
   name: string;
   price: string;
   description: string;
+  [key: string]: string;
 }
 
 export const AddDish = () => {
@@ -62,31 +63,35 @@ export const AddDish = () => {
 
   const onSubmit = () => {
     const { name, price, description, ...rest } = getValues();
-    console.log(rest);
+    const optionObjects = optionsNumber.map((theId) => ({
+      name: rest[`${theId}-optionName`],
+      extra: +rest[`${theId}-optionExtra`],
+    }));
 
-    // createDishMutation({
-    //   variables: {
-    //     input: {
-    //       name,
-    //       price: +price,
-    //       description,
-    //       restaurantId: +restaurantId,
-    //     },
-    //   },
-    // });
+    createDishMutation({
+      variables: {
+        input: {
+          name,
+          price: +price,
+          description,
+          restaurantId: +restaurantId,
+          options: optionObjects,
+        },
+      },
+    });
 
-    // history.goBack();
+    history.goBack();
   };
 
-  const [optionsNumber, setOptionsNumber] = useState(0);
+  const [optionsNumber, setOptionsNumber] = useState<number[]>([]);
+
   const onAddOptionClick = () => {
-    setOptionsNumber((current) => current + 1);
+    setOptionsNumber((current) => [Date.now(), ...current]);
   };
+
   const onDeleteClick = (idToDelete: number) => {
-    setOptionsNumber((current) => current - 1);
-    // @ts-ignore
+    setOptionsNumber((current) => current.filter((id) => id !== idToDelete));
     setValue(`${idToDelete}-optionName`, null);
-    // @ts-ignore
     setValue(`${idToDelete}-optionExtra`, null);
   };
 
@@ -106,7 +111,13 @@ export const AddDish = () => {
           type="text"
           name="name"
           placeholder="Name"
-          ref={register({ required: "Name is required." })}
+          ref={register({
+            required: "Name is required.",
+            minLength: {
+              value: 5,
+              message: "Name must be longer than or equal to 5 characters",
+            },
+          })}
         />
         <input
           className="input"
@@ -121,36 +132,54 @@ export const AddDish = () => {
           type="text"
           name="description"
           placeholder="Description"
-          ref={register({ required: "Description is required." })}
+          ref={register({
+            required: "Description is required.",
+            minLength: {
+              value: 5,
+              message:
+                "Description must be longer than or equal to 5 characters",
+            },
+          })}
         />
 
         <div className="my-10">
           <h4 className="font-medium  mb-3 text-lg">Dish Options</h4>
           <span
             onClick={onAddOptionClick}
-            className=" cursor-pointer text-white bg-gray-900 py-1 px-2 mt-5 bg-"
+            className="cursor-pointer text-white bg-gray-900 py-1 px-2 mt-5 bg-"
           >
             Add Dish Option
           </span>
-          {optionsNumber !== 0 &&
-            new Array(optionsNumber).fill(null).map((_, index) => (
-              <div key={index} className="mt-5">
+          {optionsNumber.length !== 0 &&
+            optionsNumber.map((id) => (
+              <div key={id} className="mt-5">
                 <input
-                  ref={register}
-                  name={`${index}-optionName`}
+                  name={`${id}-optionName`}
                   className="py-2 px-4 focus:outline-none mr-3 focus:border-gray-600 border-2"
                   type="text"
                   placeholder="Option Name"
+                  ref={register({
+                    minLength: {
+                      value: 5,
+                      message:
+                        "Option Name must be longer than or equal to 5 characters",
+                    },
+                  })}
                 />
                 <input
                   ref={register}
-                  name={`${index}-optionExtra`}
+                  name={`${id}-optionExtra`}
                   className="py-2 px-4 focus:outline-none focus:border-gray-600 border-2"
                   type="number"
                   min={0}
                   placeholder="Option Extra"
                 />
-                <span onClick={() => onDeleteClick(index)}>Delete Option</span>
+                <span
+                  className="cursor-pointer text-white bg-red-500 ml-3 py-3 px-4 mt-5 bg-"
+                  onClick={() => onDeleteClick(id)}
+                >
+                  Delete Option
+                </span>
               </div>
             ))}
         </div>
