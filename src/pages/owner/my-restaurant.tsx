@@ -2,6 +2,7 @@ import { gql, useQuery } from "@apollo/client";
 import React from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useParams, useRouteMatch } from "react-router-dom";
+import { Dish } from "../../components/dish";
 import { DISH_FRAGMENT, RESTAURANT_FRAGMENT } from "../../fragments";
 import {
   myRestaurant,
@@ -60,7 +61,10 @@ export const MyRestaurant = () => {
         <h2 className="text-4xl font-medium mb-10">
           {data?.myRestaurant.restaurant?.name || "Loading..."}
         </h2>
-        <Link to={`${match.url}/add-dish`} className=" mr-8 text-white bg-gray-800 py-3 px-10">
+        <Link
+          to={`${match.url}/add-dish`}
+          className=" mr-8 text-white bg-gray-800 py-3 px-10"
+        >
           Add Dish &rarr;
         </Link>
         <Link to={``} className=" text-white bg-lime-700 py-3 px-10">
@@ -69,7 +73,18 @@ export const MyRestaurant = () => {
         <div className="mt-10">
           {data?.myRestaurant.restaurant?.menu.length === 0 ? (
             <h4 className="text-xl mb-5">Please upload a dish!</h4>
-          ) : null}
+          ) : (
+            <div className="grid mt-16 md:grid-cols-3 gap-x-5 gap-y-10">
+              {data?.myRestaurant.restaurant?.menu.map((dish) => (
+                <Dish
+                  key={dish.id}
+                  name={dish.name}
+                  description={dish.description}
+                  price={dish.price}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
