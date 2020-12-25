@@ -88,13 +88,30 @@ export const Restaurant = () => {
     }
     const oldItem = getItem(dishId);
     if (oldItem) {
-      removeFromOrder(dishId);
-      setOrderItems((current) => {
-        return [
+      const hasOption = Boolean(
+        oldItem.options?.find((aOption) => aOption.name == option.name)
+      );
+      if (!hasOption) {
+        removeFromOrder(dishId);
+        setOrderItems((current) => [
           { dishId, options: [option, ...oldItem.options!] },
           ...current,
-        ]
-      });
+        ]);
+      }
+    }
+  };
+
+  const getOptionFromItem = (
+    item: CreateOrderItemInput,
+    optionName: string
+  ) => {
+    return item.options?.find((option) => option.name === optionName);
+  };
+
+  const isOptionSelected = (dishId: number, optionName: string) => {
+    const item = getItem(dishId);
+    if (item) {
+      return Boolean(getOptionFromItem(item, optionName));
     }
   };
   console.log(orderItems);
@@ -138,8 +155,29 @@ export const Restaurant = () => {
               options={dish.options}
               isSelected={isSelected(dish.id)}
               removeFromOrder={removeFromOrder}
-              addOptionToItem={addOptionToItem}
-            />
+            >
+              {dish.options?.map((option, index) => {
+                const { name } = option;
+                const _isOptionSelected = isOptionSelected(dish.id, name);
+                const handleAddOptionToItem = () => {
+                  if (addOptionToItem) {
+                    addOptionToItem(dish.id, { name });
+                  }
+                };
+                return (
+                  <span
+                    onClick={handleAddOptionToItem}
+                    className={`flex border items-center ${
+                      _isOptionSelected ? "border-gray-800" : ""
+                    }`}
+                    key={index}
+                  >
+                    <h6 className="mr-2">{option.name}</h6>
+                    <h6 className="text-sm opacity-75">(${option.extra})</h6>
+                  </span>
+                );
+              })}
+            </Dish>
           ))}
         </div>
       </div>

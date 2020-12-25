@@ -11,7 +11,6 @@ interface IDishProps {
   options?: restaurant_restaurant_restaurant_menu_options[] | null;
   addItemToOrder?: (dishId: number) => void;
   removeFromOrder?: (dishId: number) => void;
-  addOptionToItem?: (dishId: number, option: any) => void;
   isSelected?: boolean;
 }
 
@@ -25,7 +24,7 @@ export const Dish: React.FC<IDishProps> = ({
   options,
   addItemToOrder,
   removeFromOrder,
-  addOptionToItem,
+  children: dishOptions,
   isSelected,
 }) => {
   const onClick = () => {
@@ -59,22 +58,7 @@ export const Dish: React.FC<IDishProps> = ({
       {isCustomer && options && options?.length !== 0 && (
         <div>
           <h5 className="mt-8 mb-3 font-medium">Dish Options:</h5>
-          {options?.map((option, index) => {
-            const { name } = option;
-            return (
-              <span
-                onClick={(event) => {
-                  event.stopPropagation();
-                  return addOptionToItem ? addOptionToItem(id, { name }) : null;
-                }}
-                className="flex border items-center"
-                key={index}
-              >
-                <h6 className="mr-2">{option.name}</h6>
-                <h6 className="text-sm opacity-75">(${option.extra || 0})</h6>
-              </span>
-            );
-          })}
+          {dishOptions}
         </div>
       )}
     </div>
