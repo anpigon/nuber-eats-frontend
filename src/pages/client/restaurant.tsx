@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
 import { Dish } from "../../components/dish";
+import { DishOption } from "../../components/dish-option";
 import { RESTAURANT_FRAGMENT, DISH_FRAGMENT } from "../../fragments";
 import { CreateOrderItemInput } from "../../__generated__/globalTypes";
 import {
@@ -82,22 +83,42 @@ export const Restaurant = () => {
     );
   };
 
-  const addOptionToItem = (dishId: number, option: any) => {
+  const addOptionToItem = (dishId: number, optionName: string) => {
     if (!isSelected(dishId)) {
       return;
     }
     const oldItem = getItem(dishId);
     if (oldItem) {
       const hasOption = Boolean(
-        oldItem.options?.find((aOption) => aOption.name == option.name)
+        oldItem.options?.find((item) => item.name === optionName)
       );
       if (!hasOption) {
         removeFromOrder(dishId);
         setOrderItems((current) => [
-          { dishId, options: [option, ...oldItem.options!] },
+          { dishId, options: [{ name: optionName }, ...oldItem.options!] },
           ...current,
         ]);
       }
+    }
+  };
+
+  const removeOptionFromItem = (dishId: number, optionName: string) => {
+    if (!isSelected(dishId)) {
+      return;
+    }
+    const oldItem = getItem(dishId);
+    if (oldItem) {
+      removeFromOrder(dishId);
+      setOrderItems((current) => [
+        {
+          dishId,
+          options: oldItem.options?.filter(
+            (option) => option.name !== optionName
+          ),
+        },
+        ...current,
+      ]);
+      return;
     }
   };
 
@@ -113,6 +134,7 @@ export const Restaurant = () => {
     if (item) {
       return Boolean(getOptionFromItem(item, optionName));
     }
+    return false;
   };
   console.log(orderItems);
 
@@ -156,27 +178,17 @@ export const Restaurant = () => {
               isSelected={isSelected(dish.id)}
               removeFromOrder={removeFromOrder}
             >
-              {dish.options?.map((option, index) => {
-                const { name } = option;
-                const _isOptionSelected = isOptionSelected(dish.id, name);
-                const handleAddOptionToItem = () => {
-                  if (addOptionToItem) {
-                    addOptionToItem(dish.id, { name });
-                  }
-                };
-                return (
-                  <span
-                    onClick={handleAddOptionToItem}
-                    className={`flex border items-center ${
-                      _isOptionSelected ? "border-gray-800" : ""
-                    }`}
-                    key={index}
-                  >
-                    <h6 className="mr-2">{option.name}</h6>
-                    <h6 className="text-sm opacity-75">(${option.extra})</h6>
-                  </span>
-                );
-              })}
+              {dish.options?.map((option, index) => (
+                <DishOption
+                  key={index}
+                  dishId={dish.id}
+                  isSelected={isOptionSelected(dish.id, option.name)}
+                  name={option.name}
+                  extra={option.extra}
+                  addOptionToItem={addOptionToItem}
+                  removeOptionFromItem={removeOptionFromItem}
+                />
+              ))}
             </Dish>
           ))}
         </div>
