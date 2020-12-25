@@ -1,4 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
+import { debug } from "console";
 import React, { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
@@ -88,10 +89,12 @@ export const Restaurant = () => {
     const oldItem = getItem(dishId);
     if (oldItem) {
       removeFromOrder(dishId);
-      setOrderItems((current) => [
-        { dishId, options: [option, ...oldItem.options!] },
-        ...current,
-      ]);
+      setOrderItems((current) => {
+        return [
+          { dishId, options: [option, ...oldItem.options!] },
+          ...current,
+        ]
+      });
     }
   };
   console.log(orderItems);
