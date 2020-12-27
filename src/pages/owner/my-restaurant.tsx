@@ -1,13 +1,11 @@
-import { gql, useMutation, useQuery } from "@apollo/client";
-import React from "react";
+import { gql, useMutation, useQuery, useSubscription } from "@apollo/client";
+import React, { useEffect } from "react";
 import { Helmet } from "react-helmet-async";
-import { Link, useParams, useRouteMatch } from "react-router-dom";
+import { Link, useHistory, useParams, useRouteMatch } from "react-router-dom";
 import {
   VictoryAxis,
-  VictoryBar,
   VictoryChart,
   VictoryLabel,
-  VictoryPie,
   VictoryTheme,
   VictoryTooltip,
   VictoryLine,
@@ -17,14 +15,19 @@ import { Dish } from "../../components/dish";
 import {
   DISH_FRAGMENT,
   ORDERS_FRAGMENT,
+  FULL_ORDER_FRAGMENT,
   RESTAURANT_FRAGMENT,
 } from "../../fragments";
 import { useMe } from "../../hooks/useMe";
-import { createPayment, createPaymentVariables } from "../../__generated__/createPayment";
+import {
+  createPayment,
+  createPaymentVariables,
+} from "../../__generated__/createPayment";
 import {
   myRestaurant,
   myRestaurantVariables,
 } from "../../__generated__/myRestaurant";
+import { pendingOrders } from "../../__generated__/pendingOrders";
 
 export const MY_RESTAURANT_QUERY = gql`
   query myRestaurant($input: MyRestaurantInput!) {
@@ -56,12 +59,23 @@ const CREATE_PAYMENT_MUTATION = gql`
   }
 `;
 
+const PENDING_ORDERS_SUBSCRIPTION = gql`
+  subscription pendingOrders {
+    pendingOrders {
+      ...FullOrderParts
+    }
+  }
+  ${FULL_ORDER_FRAGMENT}
+`;
+
 interface IParams {
   id: string;
 }
 
 export const MyRestaurant = () => {
   const match = useRouteMatch();
+  const history = useHistory();
+  
   const { id } = useParams<IParams>();
   const { data } = useQuery<myRestaurant, myRestaurantVariables>(
     MY_RESTAURANT_QUERY,
@@ -86,7 +100,7 @@ export const MyRestaurant = () => {
   >(CREATE_PAYMENT_MUTATION, {
     onCompleted,
   });
-  
+
   const { data: userData } = useMe();
   const triggerPaddle = () => {
     if (userData?.me.email) {
@@ -109,6 +123,16 @@ export const MyRestaurant = () => {
       });
     }
   };
+
+  const { data: subscriptionData } = useSubscription<pendingOrders>(
+    PENDING_ORDERS_SUBSCRIPTION
+  );
+
+  useEffect(() => {
+    if (subscriptionData?.pendingOrders.id) {
+      history.push(`/orders/${subscriptionData.pendingOrders.id}`);
+    }
+  }, [subscriptionData]);
 
   return (
     <div>
