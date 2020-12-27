@@ -6,8 +6,16 @@ interface ICoords {
   lng: number;
 }
 
+interface IDriverProps {
+  lat: number;
+  lng: number;
+  $hover?: any;
+}
+
+const Driver: React.FC<IDriverProps> = () => <div className="text-lg">🚖</div>;
+
 export const Dashboard = () => {
-  const [map, setMap] = useState<any>();
+  const [map, setMap] = useState<google.maps.Map>();
   const [maps, setMaps] = useState<any>();
   const [driverCoords, setDriverCoords] = useState<ICoords>({ lng: 0, lat: 0 });
 
@@ -30,11 +38,11 @@ export const Dashboard = () => {
 
   useEffect(() => {
     if (map && maps) {
-      map.panTo(new maps.LatLng(driverCoords.lat, driverCoords.lng));
+      map.panTo(new google.maps.LatLng(driverCoords.lat, driverCoords.lng));
     }
   }, [driverCoords.lat, driverCoords.lng, map, maps]);
 
-  const onApiLoaded = ({ map, maps }: { map: any; maps: any }) => {
+  const onApiLoaded = ({ map, maps }: { map: google.maps.Map; maps: any }) => {
     setMap(map);
     setMaps(maps);
   };
@@ -56,14 +64,7 @@ export const Dashboard = () => {
           }}
           bootstrapURLKeys={{ key: process.env.REACT_APP_GOOGLE_MAP_API_KEY! }}
         >
-          <div
-            // @ts-ignore
-            lat={driverCoords.lat}
-            lng={driverCoords.lng}
-            className="text-lg"
-          >
-            🚖
-          </div>
+          <Driver lat={driverCoords.lat} lng={driverCoords.lng} />
         </GoogleMapReact>
       </div>
     </div>
