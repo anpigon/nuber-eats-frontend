@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import GoogleMapReact from "google-map-react";
-import { gql, useSubscription } from "@apollo/client";
+import { gql, useMutation, useSubscription } from "@apollo/client";
 import { FULL_ORDER_FRAGMENT } from "../../fragments";
 import { cookedOrders } from "../../__generated__/cookedOrders";
-import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
+import { takeOrder, takeOrderVariables } from "../../__generated__/takeOrder";
 
 const COOKED_ORDERS_SUBSCRIPTION = gql`
   subscription cookedOrders {
@@ -12,6 +13,15 @@ const COOKED_ORDERS_SUBSCRIPTION = gql`
     }
   }
   ${FULL_ORDER_FRAGMENT}
+`;
+
+const TAKE_ORDER_MUTATION = gql`
+  mutation takeOrder($input: TakeOrderInput!) {
+    takeOrder(input: $input) {
+      ok
+      error
+    }
+  }
 `;
 
 interface ICoords {
@@ -28,6 +38,7 @@ interface IDriverProps {
 const Driver: React.FC<IDriverProps> = () => <div className="text-lg">🚖</div>;
 
 export const Dashboard = () => {
+  const history = useHistory();
   const [map, setMap] = useState<google.maps.Map>();
   const [maps, setMaps] = useState<any>();
   const [driverCoords, setDriverCoords] = useState<ICoords>({ lng: 0, lat: 0 });
@@ -104,6 +115,27 @@ export const Dashboard = () => {
     }
   }, [cookedOrdersData]);
 
+  const onCompleted = (data: takeOrder) => {
+    if (data.takeOrder.ok) {
+      history.push(`/orders/${cookedOrdersData?.cookedOrders.id}`);
+    }
+  };
+  const [takeOrderMutation] = useMutation<takeOrder, takeOrderVariables>(
+    TAKE_ORDER_MUTATION,
+    {
+      onCompleted,
+    }
+  );
+  const triggerMutation = (orderId: number) => {
+    takeOrderMutation({
+      variables: {
+        input: {
+          id: orderId,
+        },
+      },
+    });
+  };
+
   return (
     <div>
       <div
@@ -132,12 +164,12 @@ export const Dashboard = () => {
               Pick it up soon @{" "}
               {cookedOrdersData?.cookedOrders.restaurant?.name}
             </h1>
-            <Link
-              to={`/orders/${cookedOrdersData?.cookedOrders.id}`}
+            <button
+              onClick={() => triggerMutation(cookedOrdersData?.cookedOrders.id)}
               className="btn w-full  block  text-center mt-5"
             >
               Accept Challenge &rarr;
-            </Link>
+            </button>
           </>
         ) : (
           <h1 className="text-center  text-3xl font-medium">
