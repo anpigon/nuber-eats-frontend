@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { gql, useQuery, useSubscription } from "@apollo/client";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
@@ -37,26 +37,45 @@ interface IParams {
 
 export const Order = () => {
   const params = useParams<IParams>();
-  const { data } = useQuery<getOrder, getOrderVariables>(GET_ORDER, {
-    variables: {
-      input: {
-        id: +params.id,
+  const { data, subscribeToMore } = useQuery<getOrder, getOrderVariables>(
+    GET_ORDER,
+    {
+      variables: {
+        input: {
+          id: +params.id,
+        },
       },
-    },
-  });
-  console.log({ data });
+    }
+  );
 
-  const { data: subscription } = useSubscription<
-    orderUpdates,
-    orderUpdatesVariables
-  >(ORDER_SUBSCRIPTION, {
-    variables: {
-      input: {
-        id: +params.id,
-      },
-    },
-  });
-  console.log({ subscription });
+  useEffect(() => {
+    if (data?.getOrder.ok) {
+      subscribeToMore({
+        document: ORDER_SUBSCRIPTION,
+        variables: {
+          input: {
+            id: +params.id,
+          },
+        },
+        updateQuery: (
+          prev,
+          {
+            subscriptionData: { data },
+          }: { subscriptionData: { data: orderUpdates } }
+        ) => {
+          if (!data) return prev;
+          return {
+            getOrder: {
+              ...prev.getOrder,
+              order: {
+                ...data.orderUpdates,
+              },
+            },
+          };
+        },
+      });
+    }
+  }, [data]);
 
   return (
     <div className="mt-32 container flex justify-center">
