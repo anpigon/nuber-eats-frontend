@@ -19,7 +19,7 @@ const isProd = process.env.NODE_ENV === "production";
 
 const wsLink = new WebSocketLink({
   uri: isProd
-    ? "ws://nuber-eats-backend.herokuapp.com/graphql"
+    ? "wss://nuber-eats-backend.herokuapp.com/graphql"
     : `ws://localhost:4000/graphql`,
   options: {
     reconnect: true,
