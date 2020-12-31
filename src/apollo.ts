@@ -15,8 +15,12 @@ const token = localStorage.getItem(LOCAL_STORAGE_TOKEN);
 export const isLoggedInVar = makeVar(Boolean(token));
 export const authTokenVar = makeVar(token);
 
+const isProd = process.env.NODE_ENV === "production";
+
 const wsLink = new WebSocketLink({
-  uri: `ws://localhost:4000/graphql`,
+  uri: isProd
+    ? "ws://nuber-eats-backend.herokuapp.com/graphql"
+    : `ws://localhost:4000/graphql`,
   options: {
     reconnect: true,
     connectionParams: {
@@ -27,7 +31,9 @@ const wsLink = new WebSocketLink({
 
 // ref: https://www.apollographql.com/docs/react/networking/authentication/
 const httpLink = createHttpLink({
-  uri: "http://localhost:4000/graphql",
+  uri: isProd
+  ? "https://nuber-eats-backend.herokuapp.com/graphql"
+  : "http://localhost:4000/graphql",
 });
 
 const authLink = setContext((_, { headers }) => {
